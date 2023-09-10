@@ -11,9 +11,11 @@ FRAMES_PER_SECOND = 10
 FRAME_WIDTH = 300
 FRAME_HEIGHT = 300
 
+epoch_count = 1
+
 
 #1 = read video files, 2 = read images
-fileMode = 2
+fileMode = 1
 
 rawMoisture = []
 videoNames = []
@@ -175,8 +177,10 @@ class Identity(nn.Module):
     def __init__(self):
         super(Identity, self).__init__()
     def forward(self, x):
-        return x    
+        return x   
 
+from torch.utils.data import DataLoader, TensorDataset    
+import torch
 
 params_model={
 "num_classes": 1,
@@ -185,3 +189,37 @@ params_model={
 "rnn_num_layers": 1,
 "rnn_hidden_size": 100,}
 model = Resnt18Rnn(params_model)
+
+videoData = np.array(videoData)
+moistures = np.array(rawMoisture)
+
+videoData = torch.tensor(videoData)
+moistures = torch.tensor(moistures)
+
+#bothh = [videoData, rawMoisture]
+
+print(videoData.shape) 
+print(moistures.shape) 
+
+train_data = TensorDataset(videoData , moistures)
+
+train_loader = DataLoader(train_data, batch_size=64, shuffle=False)
+
+
+for epoch in range(epoch_count):
+    
+    for x, y in train_loader:
+        
+        optimizer.zero_grad()
+        
+        outputs = model(x)
+        loss = criterion(outputs, y)
+        loss.backward()
+        optimizer.step()
+        
+        #print(y)
+        
+        running_loss += loss.item()
+        if epoch % 2 == 0 or True:    # print every 2000 mini-batches
+            print(f'[{epoch + 1}, {epoch + 1:5d}] loss: {running_loss / 2000:.3f}')
+            running_loss = 0.0
