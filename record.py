@@ -6,7 +6,7 @@ import cv2
 from pathlib import Path
 
 #Webcam
-cam = cv2.VideoCapture(0)
+cam = cv2.VideoCapture("/dev/v4l/by-id/usb-H264_USB_Camera_H264_USB_Camera_2020032801-video-index0")
 
 #How many frames to capture per second
 FPS = 2
