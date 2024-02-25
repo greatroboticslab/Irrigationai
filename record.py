@@ -9,7 +9,7 @@ from pathlib import Path
 cam = cv2.VideoCapture("/dev/v4l/by-id/usb-H264_USB_Camera_H264_USB_Camera_2020032801-video-index0")
 
 #How many frames to capture per second
-FPS = 2
+FPS = 1
 
 folderName = input("Please enter the name of this recording's file: ")
 

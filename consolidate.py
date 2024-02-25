@@ -62,6 +62,8 @@ if len(sys.argv) >= 4:
 	#Load images folder
 	imgs = sorted(os.listdir(recordingFolderName))
 	for i in imgs:
+		if not i.find(".csv") == -1 :
+			continue
 		newImg = ImgEntry(int(i[:i.find(".")]), i)
 		#print(newImg.time)
 		imgEntries.append(newImg)

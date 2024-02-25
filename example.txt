@@ -1,0 +1,14 @@
+ACTIVATE CONDA:
+
+	conda activate YOLO
+
+
+TO RECORD:
+
+	python record.py
+	
+TO STOP:
+
+	press Q
+	
+

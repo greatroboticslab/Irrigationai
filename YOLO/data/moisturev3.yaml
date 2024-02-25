@@ -1,0 +1,13 @@
+train: ./data/MoistureV3/train/images
+val: ./data/MoistureV3/valid/images
+test: ./data/MoistureV3/test/images
+
+nc: 30
+names: ['0', '1359', '1361', '1364', '1365', '1366', '1367', '1369', '1370', '1371', '1372', '1373', '1374', '1375', '1376', '1379', '1383', '1385', '1387', '1389', '1415', '1571', '1584', '1585', '1638', '1877', '1879', '1881', '1883', '1886']
+
+roboflow:
+  workspace: robotics-lab-1
+  project: soil-moisture-v3
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/robotics-lab-1/soil-moisture-v3/dataset/1
