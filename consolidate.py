@@ -7,141 +7,92 @@ from PIL import Image
 from PIL import ImageDraw
 
 class CSVEntry:
-	def __init__(self, t, m):
-		self.time = t
-		self.moisture = m
-
-class ImgEntry:
-	def __init__(self, t, d):
-		self.time = t
-		self.directory = d
-
-class CombinedEntry:
-	def __init__(self, c, i):
-		self.csv = c
+	def __init__(self, i, m):
 		self.img = i
+		self.moisture = m
 	
+moistures = []
+imgNames = []
 
-if len(sys.argv) >= 4:
+entries = []
+
+twoMeters = False #Whether or not to use a 2nd meter that you manually add water every
+#meterInterval seconds, increasing it by 1 each time until it reaches 10
+meterInterval = 60 #Seconds to wait before adding water to the pot to increase by 1
+currentMoisture2 = 1
+
+simpleClasses = False
+simpleNames = ["dry", "slightly wet", "wet", "very wet", "soaked"]
+moistureRange = [3130, 1300]
+simpleClassAmount = 5
+
+moistureRanges = []
+incr = abs(moistureRange[0] - moistureRange[1])
+
+if len(sys.argv) >= 2:
 
 	csvEntries = []
 	imgEntries = []
 	combinedEntries = []
 	
-	csvFileName = sys.argv[1]
-	recordingFolderName = sys.argv[2]
-	moistureColumn = int(sys.argv[3])
-	outputFolder = sys.argv[4]
+	recordingFolderName = sys.argv[1]
+	outputFolder = sys.argv[2]
 	
+	if len(sys.argv) >= 3:
+		for _arg in sys.argv:
+			if _arg == "simple":
+				simpleClasses = True
+			if _arg == "dual":
+				twoMeters = True
 	
 	#Load CSV File
-	with open(csvFileName, newline='') as csvFile:
+	with open(recordingFolderName+"/moistures.csv", newline='') as csvFile:
 		cReader = csv.reader(csvFile, delimiter=",", skipinitialspace=True)
 		firstRow = True
 		for row in cReader: 
 			if firstRow:
 				firstRow = False
 				continue
-			rawDate = row[0].split("-")
-			rawTime = row[1].split("-")
+			m = float(row[0])
 			
-			rYear = int(rawDate[0])
-			rMonth = int(rawDate[1])
-			rDay = int(rawDate[2])
-			
-			rHour = int(rawTime[0])
-			rMinute = int(rawTime[1])
-			rSecond = int(rawTime[2])
-			
-			t=datetime.datetime(rYear, rMonth, rDay, rHour, rMinute, rSecond)
-			m = int(row[moistureColumn+1])
-			newCSV = CSVEntry(int(calendar.timegm(t.timetuple())), m)
-			#print(str(newCSV.time) + ", " + str(newCSV.moisture))
-			csvEntries.append(newCSV)
+			moistures.append(m)
 			
 	#Load images folder
 	imgs = sorted(os.listdir(recordingFolderName))
 	for i in imgs:
 		if not i.find(".csv") == -1 :
 			continue
-		newImg = ImgEntry(int(i[:i.find(".")]), i)
-		#print(newImg.time)
-		imgEntries.append(newImg)
-	
-	#Synchronize the two sets
-	
-	cLen = len(csvEntries)
-	iLen = len(imgEntries)
-	
-	startPoint = 0
-	foundPoint = False
-	csvOffset = False
-	
-	#CSV starts before images
-	if csvEntries[0].time < imgEntries[0].time:
-		for x in range(cLen):
-			if csvEntries[x].time > imgEntries[0].time:
-				if not foundPoint:
-					startPoint = x
-				foundPoint = True
-				csvOffset = True
-	#CSV starts after images
-	if csvEntries[0].time > imgEntries[0].time:
-		for x in range(iLen):
-			if imgEntries[x].time > csvEntries[0].time:
-				if not foundPoint:
-					startPoint = x
-				foundPoint = True
-				
-	#Combine the two sets with the offsets and make sure they are the same size
-	maxLen = cLen
-	if iLen < cLen:
-		maxLen = iLen
-	
-	#If the list starts at an offset of the CSV entries
-	if csvOffset:
-		x = startPoint
-		y = 0
-		while x < maxLen and y < iLen:
-			
-			newCombined = CombinedEntry(csvEntries[x], imgEntries[y])
-			combinedEntries.append(newCombined)
-			
-			y += 1
-			x += 1
-	
-	else:
-		x = startPoint
-		y = 0
-		while x < maxLen and y < cLen:
-			
-			newCombined = CombinedEntry(csvEntries[y], imgEntries[x])
-			combinedEntries.append(newCombined)
-			
-			y += 1
-			x += 1
+		imgNames.append(i)
+		
+	for i in range(len(moistures)):
+		newEntry = CSVEntry(imgNames[i], moistures[i])
+		entries.append(newEntry)
+		
 	
 	#Create output folder
 	if not os.path.exists(outputFolder):
 		os.makedirs(outputFolder)
 				
 	
-	outputCsvData = "Time, Moisture, Image\n"
+	outputCsvData = "Image, Moisture\n"
+	if twoMeters:
+		outputCsvData = "Time, Moisture, Moisture2, Image\n"
 	
 	ite = 1
 		
-	for e in combinedEntries:
+	for e in entries:
 	
-		img = Image.open(recordingFolderName+"/"+e.img.directory)
+		img = Image.open(recordingFolderName+"/"+e.img)
 		iDraw = ImageDraw.Draw(img)
-		iDraw.text((10,10), "Moisture: " + str(e.csv.moisture) + "\nTime: " + str(e.csv.time), fill=(255,255,0))
+		iDraw.text((10,10), "Moisture: " + str(round(e.moisture)) + "\nTime: ", fill=(255,255,0))
 		img.save(outputFolder+"/"+str(ite)+".png")
 		
-		outputCsvData += str(e.csv.time)
-		outputCsvData += ", "
-		outputCsvData += str(e.csv.moisture)
-		outputCsvData += ", "
+		
+		
 		outputCsvData += str(ite)+".png"
+		outputCsvData += ", "
+		outputCsvData += str(e.moisture)
+		
 		outputCsvData += "\n"
 		
 		ite += 1
@@ -152,4 +103,4 @@ if len(sys.argv) >= 4:
 		
 	
 else:
-	print("Usage: consolidate.py <csv_file> <recording_folder_name> <column> <output_folder>")
+	print("Usage: consolidate.py <recording_folder_name> <output_folder>")
