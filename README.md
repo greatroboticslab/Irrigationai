@@ -12,3 +12,7 @@ This can be done with:
 	
 ### Example:
 python consolidate.py ~/Irrigationai/Data/recording6/2-24-2024_10-13-14.csv ~/Irrigationai/Data/recording6/ 5 ~/Downloads/recording6
+
+# Training
+
+YOLOv5 is in the YOLO folder. It contains a readme with instructions on how to use. The output data after training is stored in YOLO/runs/trains/<version>
