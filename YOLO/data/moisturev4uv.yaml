@@ -1,0 +1,13 @@
+train: ./data/moisturev4uv/train/images
+val: ./data/moisturev4uv/valid/images
+test: ./data/moisturev4uv/test/images
+
+nc: 11
+names: ['0', '1', '10', '2', '3', '4', '5', '6', '7', '8', '9']
+
+roboflow:
+  workspace: robotics-lab-1
+  project: soil-moisture-v4
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/robotics-lab-1/soil-moisture-v4/dataset/1
