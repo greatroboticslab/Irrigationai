@@ -36,6 +36,9 @@ simpleClassAmount = 5
 moistureRanges = []
 incr = abs(moistureRange[0] - moistureRange[1])
 
+#Times are not matching up, temporary fix
+timeOffset = 18035
+
 if len(sys.argv) >= 3:
 
 	csvEntries = []
@@ -83,7 +86,7 @@ if len(sys.argv) >= 3:
 			csvEntries.append(newCSV)
 			
 	#Load manually recorded CSV File
-	with open("Calibration/recording.csv", newline='') as csvFile:
+	with open("recording.csv", newline='') as csvFile:
 		cReader = csv.reader(csvFile, delimiter=",", skipinitialspace=True)
 		firstRow = True
 		for row in cReader: 
@@ -106,25 +109,29 @@ if len(sys.argv) >= 3:
 	
 	corrections = []
 	
+	#print(recEntries[0].time - csvEntries[0].time)
+	#print(csvEntries[0].time)
+	
 	for rec in recEntries:
 		lowestDelta = 999999999
 		lowest = 0
 		for c in range(len(csvEntries)):
-			td = abs(rec.time - csvEntries[c].time)
+			td = abs((rec.time - timeOffset) - csvEntries[c].time)
 			if td < lowestDelta:
 				lowestDelta = td
 				lowest = c
 		newC = CorrectionEntry(csvEntries[lowest].moisture, rec.moisture)
 		
+		#print(lowestDelta)
 		#print(str(newC.base) + " -> " + str(newC.actual))
 		
 		corrections.append(newC)
 		
-	#Average duplicates and order by moisture
+	#Average duplicates and order by base moisture
 	for c in range(len(corrections)):
 		k = c
 		while k < len(corrections):
-			if corrections[k].actual < corrections[c].actual:
+			if corrections[k].base < corrections[c].base:
 				temp = corrections[c]
 				corrections[c] = corrections[k]
 				corrections[k] = temp
@@ -134,34 +141,35 @@ if len(sys.argv) >= 3:
 	
 	curCorrection = None
 	avgMoisture = 0.0
-	lastMoisture = corrections[0].actual
+	lastMoisture = corrections[0].base
 	dupes = 0
 	
 	curCorrection = CorrectionEntry(corrections[0].base, corrections[0].actual)
 	
 	for c in range(len(corrections)):
-		curMoisture = corrections[c].actual
+		curMoisture = corrections[c].base
 		if lastMoisture != curMoisture:
 			
+			#print(str(lastMoisture) + ", " + str(curMoisture))
 			#if curCorrection != None:
 			avgMoisture /= dupes
-			curCorrection.base = avgMoisture
+			curCorrection.actual = avgMoisture
 			finalCorrections.append(curCorrection)
 			curCorrection = CorrectionEntry(corrections[c].base, corrections[c].actual)
 			dupes = 1
-			avgMoisture = curCorrection.base
+			avgMoisture = curCorrection.actual
 		else:
 			dupes += 1
-			avgMoisture += curMoisture
-		lastMoisture = corrections[c].actual
+			avgMoisture += corrections[c].actual
+		lastMoisture = corrections[c].base
 		
 	avgMoisture /= dupes
-	curCorrection.base = avgMoisture
+	curCorrection.actual = avgMoisture
 	finalCorrections.append(curCorrection)
 			
 		
 	
-	calibrationFile = open("Calibration/calibration.csv", "w")
+	calibrationFile = open("calibration.csv", "w")
 	
 	csvText = "Moisture, Actual\n"
 	

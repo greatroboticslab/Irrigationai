@@ -8,7 +8,7 @@ class CalibrationEntry:
 calibrations = []
 
 #Load calibrations file
-with open("Calibration/calibration.csv", newline='') as csvFile:
+with open("calibration.csv", newline='') as csvFile:
 	cReader = csv.reader(csvFile, delimiter=",", skipinitialspace=True)
 	firstRow = True
 	for row in cReader: 
@@ -22,6 +22,8 @@ with open("Calibration/calibration.csv", newline='') as csvFile:
 
 # Returns the calibrated moisture
 def GetMoisture(rawMoisture):
+	
+	actual = -1.0
 	
 	lowerBound = 0
 	pos = 0.0 # Ranges from 0.0-1.0
@@ -60,8 +62,8 @@ def GetMoisture(rawMoisture):
 		uppr = True
 		oob = True
 		
-		rise = calibrations[c+1].actual - calibrations[c].actual
-						run = calibrations[c+1].base - calibrations[c].base
+		rise = calibrations[1].actual - calibrations[0].actual
+		run = calibrations[1].base - calibrations[0].base
 		slope = rise/run
 		
 	actual = 0.0
@@ -75,9 +77,14 @@ def GetMoisture(rawMoisture):
 			upperAc = calibrations[c].actual
 			pos = rawMoisture - upperBase
 			ad = pos*slope
-			actual = upperBase + ad
+			actual = upperAc + ad
 		else:
 			# Below range
+			lowerBase = calibrations[0].base
+			lowerAc = calibrations[0].actual
+			pos = rawMoisture - lowerBase
+			ad = pos*slope
+			actual = lowerAc + ad
 			
 	else:
 		# In range
@@ -92,4 +99,6 @@ def GetMoisture(rawMoisture):
 		rang = abs(upperAc - lowerAc)
 		
 		actual = lowerAc + (pos*rang)
+	return actual
 	
+print(GetMoisture(3000))
