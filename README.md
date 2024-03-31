@@ -15,4 +15,10 @@ python consolidate.py ~/Irrigationai/Data/recording6/2-24-2024_10-13-14.csv ~/Ir
 
 # Training
 
-YOLOv5 is in the YOLO folder. It contains a readme with instructions on how to use. The output data after training is stored in YOLO/runs/trains/<version>
+YOLOv5 is in the YOLO folder. It contains a readme with instructions on how to use. The output data after training is stored in YOLO/runs/trains/. Here is a snippet of running the training code:
+
+	python train.py --img 640 --epochs 1000 --data data/moisturev4.yaml --weights yolov5s.pt
+
+### Data
+
+Data is stored in YOLO/data. A dataset needs a .yaml file in this directory, which links to a folder with its images and classes. For example, moisturev4.yaml links to the folder YOLO/moisturev4, a dataset with 351 images.
