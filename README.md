@@ -15,12 +15,16 @@ Using record.py you can record from the webcam every 1 second.
 Now that you have a recording, you need to combine the images and moisture values.
 This can be done with:
 	
-	consolidate.py <csv_file> <recording_folder_name> <column> <output_folder>
+	consolidate.py <recording_folder_name> <output_folder>
 	
-In the post-processing folder.
+In the post-processing folder. This method is for manual recordings where you enter in the moisture.
+
+The below method is in the Automatic folder. It uses our custom moisture reader's csv file values, and uses calibration to convert it to the moisture values 0-10. MUST RUN THE SCRIPT IN THE SAME DIRECTORY. To run:
+
+	consolidate_automatic.py <csv_file> <recording_folder_name> <column> <output_folder>
 	
 ### Example:
-python consolidate.py ~/Irrigationai/Data/recording6/2-24-2024_10-13-14.csv ~/Irrigationai/Data/recording6/ 5 ~/Downloads/recording6
+python consolidate_automatic.py ~/Irrigationai/Data/recording6/2-24-2024_10-13-14.csv ~/Irrigationai/Data/recording6/ 5 ~/Downloads/recording6
 
 # Training
 

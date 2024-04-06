@@ -36,6 +36,8 @@ simpleClassAmount = 5
 moistureRanges = []
 incr = abs(moistureRange[0] - moistureRange[1])
 
+times = []
+
 #Times are not matching up, temporary fix
 timeOffset = 18035
 
@@ -121,6 +123,7 @@ if len(sys.argv) >= 3:
 				lowestDelta = td
 				lowest = c
 		newC = CorrectionEntry(csvEntries[lowest].moisture, rec.moisture)
+		times.append(rec.time)
 		
 		#print(lowestDelta)
 		#print(str(newC.base) + " -> " + str(newC.actual))
@@ -171,13 +174,18 @@ if len(sys.argv) >= 3:
 	
 	calibrationFile = open("calibration.csv", "w")
 	
-	csvText = "Moisture, Actual\n"
+	csvText = "Moisture, Actual, Time\n"
+	
+	t = 0
 	
 	for co in finalCorrections:
 		csvText += str(co.base)
 		csvText += ", "
 		csvText += str(co.actual)
+		csvText += ", "
+		csvText += str(times[t])
 		csvText += "\n"
+		t += 1
 	
 	calibrationFile.write(csvText)
 	calibrationFile.close()

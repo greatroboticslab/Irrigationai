@@ -1,4 +1,6 @@
 import csv
+import os
+import sys
 
 class CalibrationEntry:
 	def __init__(self, b, a):
@@ -8,7 +10,7 @@ class CalibrationEntry:
 calibrations = []
 
 #Load calibrations file
-with open("calibration.csv", newline='') as csvFile:
+with open(os.path.dirname(os.path.abspath(__file__))+"/calibration.csv", newline='') as csvFile:
 	cReader = csv.reader(csvFile, delimiter=",", skipinitialspace=True)
 	firstRow = True
 	for row in cReader: 
@@ -37,33 +39,50 @@ def GetMoisture(rawMoisture):
 	passed = False
 	
 	for c in range(len(calibrations)):
+		#Exact moisture match
 		if rawMoisture == calibrations[c].base:
 			lowerBound = c
 			upperBound = c
 			pos = 0.5
 			match = True
+			#print(calibrations[c].actual)
+			return calibrations[c].actual
+		#In between 2 points
 		if not match:
-			if not passed:
-				if rawMoisture > calibrations[c].base:
-					if c > 0:
-						passed = True
-						upperBound = c
-						lowerBound = c-1
-					#Moisture is less than on calibration
-					else:
-						oob = True
-						passed = True
-						rise = calibrations[c+1].actual - calibrations[c].actual
-						run = calibrations[c+1].base - calibrations[c].base
-						slope = rise/run
-						
-	if not passed:
-		c = len(calibrations) - 1
-		uppr = True
+			if not passed and c < len(calibrations)-1:
+				if rawMoisture < calibrations[c+1].base and rawMoisture > calibrations[c].base:
+					passed = True
+					upperBound = c+1
+	
+					lowerBound = c
+	
+	c = len(calibrations) - 2
+	#Moisture is less than on calibration
+	if rawMoisture < calibrations[0].base:
 		oob = True
+		passed = True
+		
+		
+		#rise = calibrations[c+1].actual - calibrations[c].actual
+		#run = calibrations[c+1].base - calibrations[c].base
 		
 		rise = calibrations[1].actual - calibrations[0].actual
 		run = calibrations[1].base - calibrations[0].base
+		
+		slope = rise/run
+						
+	if not passed:
+		
+		uppr = True
+		oob = True
+		
+		#rise = calibrations[1].actual - calibrations[0].actual
+		#run = calibrations[1].base - calibrations[0].base
+		
+		rise = calibrations[c+1].actual - calibrations[c].actual
+		run = calibrations[c+1].base - calibrations[c].base
+		
+		
 		slope = rise/run
 		
 	actual = 0.0
@@ -85,6 +104,7 @@ def GetMoisture(rawMoisture):
 			pos = rawMoisture - lowerBase
 			ad = pos*slope
 			actual = lowerAc + ad
+		
 			
 	else:
 		# In range
@@ -93,12 +113,15 @@ def GetMoisture(rawMoisture):
 		rang = abs(upperBase - lowerBase)
 		if not match:
 			pos = (rawMoisture-lowerBase)/rang
+			pos = 1-pos
 		
 		upperAc = calibrations[upperBound].actual
 		lowerAc = calibrations[lowerBound].actual
 		rang = abs(upperAc - lowerAc)
 		
-		actual = lowerAc + (pos*rang)
+		actual = upperAc + (pos*rang)
+		
+	print(actual)
 	return actual
 	
 print(GetMoisture(3000))
