@@ -105,6 +105,11 @@ if len(sys.argv) >= 4:
 	csvOffset = False
 	
 	#CSV starts before images
+	
+	print((csvEntries[0].time - imgEntries[0].time))
+	#Test offset
+	
+	
 	if csvEntries[0].time < imgEntries[0].time:
 		for x in range(cLen):
 			if csvEntries[x].time > imgEntries[0].time:
@@ -127,27 +132,20 @@ if len(sys.argv) >= 4:
 	
 	
 	t = 0
-	#If the list starts at an offset of the CSV entries
-	if csvOffset:
-		x = startPoint
-		y = 0
-		while x < maxLen and y < iLen:
-			
-			newCombined = CombinedEntry(csvEntries[x], imgEntries[y])
-			if twoMeters:
-				t += 1
-				if t >= meterInterval:
-					currentMoisture2 += 1
-					if currentMoisture > 10:
-						currentMoisture = 10
-					t = 0
-				newCombined.moisture2 = currentMoisture2
-			combinedEntries.append(newCombined)
-			
-			y += 1
-			x += 1
 	
-	else:
+	csvOffset = False
+	
+	minE = len(csvEntries)
+	if len(imgEntries) < minE:
+		minE = len(imgEntries)
+	
+	for x in range(minE):
+	
+		newCombined = CombinedEntry(csvEntries[x], imgEntries[x])
+		combinedEntries.append(newCombined)
+	
+	if True:
+	#else:
 		x = startPoint
 		y = 0
 		while x < maxLen and y < cLen:

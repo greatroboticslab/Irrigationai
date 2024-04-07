@@ -6,18 +6,37 @@ This repo is a collection of tools to use computer vision to estimate the moistu
 - PyTorch
 
 # Recording
-Using record.py you can record from the webcam every 1 second.
-## How to Record
-1. python record.py
-2. Enter folder name, this recording will be saved in the Data folder.
+
+## Manual Recording (Recording/record_manual.py)
+Manual recording lets you enter the moisture, which saves it as well as an image at that instant to a .csv and .jpg respectively:
+
+	python record_manual.py
+	
+## Semi-Automatic Recording (Recording/record_semi_automatic.py)
+Press enter during the run to take an image. Gives you more control over when you take photos after/during watering. The automatic part refers to the fact that the moistures are recorded from the .csv when using our moisture sensor:
+
+	python record_semi_automatic.py
+
+## Automatic Recording (Automatic/record_automatic.py)
+Records a frame every second, press q to end recording. Is paired with the .csv from our moisture sensor:
+
+	python record_automatic.py
 
 # Post-Processing/Combining
+## Regular
 Now that you have a recording, you need to combine the images and moisture values.
 This can be done with:
 	
 	consolidate.py <recording_folder_name> <output_folder>
 	
 In the post-processing folder. This method is for manual recordings where you enter in the moisture.
+
+## Semi Automatic
+Pairs every frame with the respective .csv entry. Uses calibration to convert to moimsture values from 0-10:
+
+	consolidate.py <csv_file> <recording_folder_name> <column> <output_folder>
+
+## Automatic
 
 The below method is in the Automatic folder. It uses our custom moisture reader's csv file values, and uses calibration to convert it to the moisture values 0-10. MUST RUN THE SCRIPT IN THE SAME DIRECTORY. To run:
 

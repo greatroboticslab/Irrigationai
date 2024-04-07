@@ -1,4 +1,5 @@
 #This program reads in camera frames and writes it to Data/<folder_name>
+#as well as creating a .csv for soil moisture for that frame.
 
 import sys
 import time
@@ -18,7 +19,7 @@ folderName = input("Please enter the name of this recording's file: ")
 
 #Create the recording folder if it does not exist
 
-Path("../Data/"+folderName).mkdir(parents=True, exist_ok=True)
+Path("Data/"+folderName).mkdir(parents=True, exist_ok=True)
 
 
 lastTime = time.time()
@@ -27,8 +28,10 @@ curTime = time.time()
 #Seconds since last frame
 deltaTime = 0.0
 
-manualMode = False
-manualMoistures = []
+
+if len(sys.argv) >= 2:
+	if sys.argv[1] == "-manual":
+		manualMode = True
 
 
 frame = None
@@ -40,8 +43,6 @@ def SaveFrame():
 	ret, frame1 = cam.read()
 	ret, frame1 = cam.read()
 	deltaTime = 0.0
-	if not manualMode:
-		cv2.imshow('frame', frame1)
 	cv2.imwrite("../Data/"+folderName+"/"+str(time.time())+".jpg", frame1)
 
 #Throw away first frame?
@@ -54,21 +55,26 @@ while(True):
 	#Record frame
 	#ret, frame = cam.read()
 
-	#Get current time
-	curTime = time.time()
-	deltaTime += curTime-lastTime
-	lastTime = time.time()
 	
 	
 	
 	
 	
-	if deltaTime >= FPS:
+	
+	if deltaTime >= FPS and not manualMode:
 		SaveFrame()
 	
+
+		m = input("Press ENTER to record frame, or q to quit: ")
+		if m == "q":
+			#Wrap up
+			break
+		else:
+			SaveFrame()
+	else:
 		
-	if cv2.waitKey(1) & 0xFF == ord('q'): 
-		break
+		if cv2.waitKey(1) & 0xFF == ord('q'): 
+			break
 
 cam.release()
 cv2.destroyAllWindows()
