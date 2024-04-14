@@ -6,6 +6,9 @@ import calendar
 from PIL import Image
 from PIL import ImageDraw
 
+#Times are not matching up, temporary fix
+timeOffset = 18032
+
 class CSVEntry:
 	def __init__(self, t, m):
 		self.time = t
@@ -38,8 +41,7 @@ incr = abs(moistureRange[0] - moistureRange[1])
 
 times = []
 
-#Times are not matching up, temporary fix
-timeOffset = 18035
+
 
 if len(sys.argv) >= 3:
 
@@ -111,7 +113,7 @@ if len(sys.argv) >= 3:
 	
 	corrections = []
 	
-	#print(recEntries[0].time - csvEntries[0].time)
+	print(recEntries[0].time - csvEntries[0].time)
 	#print(csvEntries[0].time)
 	
 	for rec in recEntries:
@@ -151,9 +153,10 @@ if len(sys.argv) >= 3:
 	
 	for c in range(len(corrections)):
 		curMoisture = corrections[c].base
+		#print(corrections[c].actual)
 		if lastMoisture != curMoisture:
 			
-			#print(str(lastMoisture) + ", " + str(curMoisture))
+			#print(str(corrections[c].actual) + ", " + str(curMoisture))
 			#if curCorrection != None:
 			avgMoisture /= dupes
 			curCorrection.actual = avgMoisture
@@ -164,8 +167,24 @@ if len(sys.argv) >= 3:
 		else:
 			dupes += 1
 			avgMoisture += corrections[c].actual
+			#avgMoisture = corrections[c].actual
 		lastMoisture = corrections[c].base
-		
+	
+	lowest = 0
+	
+	"""
+	for x in range(len(finalCorrections)):
+		for y in range(len(finalCorrections)):
+			if finalCorrections[y].actual < finalCorrections[x].actual:
+				temp = finalCorrections[y]
+				finalCorrections[y] = finalCorrections[x]
+				finalCorrections[x] = temp
+	
+	for f in finalCorrections:
+		print(str(f.actual) + ", " + str(f.base))
+	"""	
+	
+	
 	avgMoisture /= dupes
 	curCorrection.actual = avgMoisture
 	finalCorrections.append(curCorrection)

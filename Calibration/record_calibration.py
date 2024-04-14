@@ -47,12 +47,17 @@ while(True):
 		break
 	else:
 		
-		#Get current time
-		curTime = time.time()
-		deltaTime += curTime-lastTime
-		lastTime = time.time()
+		try:
 		
-		m = float(m)
-		newM = MoistureMeasurement(curTime, m)
-		manualMoistures.append(newM)
+			#Get current time
+			curTime = time.time()
+			deltaTime += curTime-lastTime
+			lastTime = time.time()
+			
+			m = float(m)
+			newM = MoistureMeasurement(curTime, m)
+			manualMoistures.append(newM)
+		
+		except ValueError:
+			print("Error: value is not a float.")
 

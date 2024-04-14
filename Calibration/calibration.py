@@ -19,6 +19,7 @@ with open(os.path.dirname(os.path.abspath(__file__))+"/calibration.csv", newline
 			continue
 		b = float(row[0])
 		a = float(row[1])
+		#print(str(a) + ", " + str(b))
 		newCal = CalibrationEntry(b, a)
 		calibrations.append(newCal)
 
@@ -55,6 +56,7 @@ def GetMoisture(rawMoisture):
 					upperBound = c+1
 	
 					lowerBound = c
+	#Exact values are correct
 	
 	c = len(calibrations) - 2
 	#Moisture is less than on calibration
@@ -70,7 +72,7 @@ def GetMoisture(rawMoisture):
 		run = calibrations[1].base - calibrations[0].base
 		
 		slope = rise/run
-						
+		
 	if not passed:
 		
 		uppr = True
@@ -105,6 +107,7 @@ def GetMoisture(rawMoisture):
 			ad = pos*slope
 			actual = lowerAc + ad
 		
+		
 			
 	else:
 		# In range
@@ -114,14 +117,26 @@ def GetMoisture(rawMoisture):
 		if not match:
 			pos = (rawMoisture-lowerBase)/rang
 			pos = 1-pos
+			#print(pos)
 		
 		upperAc = calibrations[upperBound].actual
 		lowerAc = calibrations[lowerBound].actual
-		rang = abs(upperAc - lowerAc)
+		rang = (upperAc - lowerAc)
 		
-		actual = upperAc + (pos*rang)
+		actual = upperAc - (pos*rang)
 		
-	print(actual)
+		if actual > 10:
+			print(str(lowerAc) + ", " + str(upperAc) + ", " + str(pos*rang))
+		
+		#actual = calibrations[lowerBound].actual
+		
+	#print(actual)
+	
+	if actual > 10:
+		actual = 10
+	if actual < 0:
+		actual = 0
+	
 	return actual
 	
 print(GetMoisture(3000))

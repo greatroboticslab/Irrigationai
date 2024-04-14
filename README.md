@@ -67,3 +67,35 @@ Data is stored in YOLO/data. A dataset needs a .yaml file in this directory, whi
 ### Hyperparameters
 
 Hyperparameters are stored in YOLO/data/hyps. They are .yaml files with arguments that can be edited, for instance: lr0 is initial learning rate, and lrf is the final learning rate. You can specify a .yaml file for hyperparameters with the --hyp argument.
+
+# Calibration
+
+Our custom moisture sensor uses values in the thousands, and they are inversely related to the standard moisture reading of 0-10. calibration.py allows conversion of our moisture to the standard values. By default, this repo comes with two calibration csv files, but using the scripts in Calibration/ you are able to make your own:
+
+### Recording calibration
+
+Make sure the SD card is reading from our moisture sensor. Then simply run record calibration and manually input what the moisture of the soil is at that moment (using a commercial sensor in the 0-10 range). This will save a recording.csv file that will be used later.
+
+### Making calibration
+
+Now that you have made a recording, you will need to the .csv file from the SD card. Then you must run the make_calibration.py:
+
+	make_calibration.py <csv_file> <column>
+	
+With <csv_file> being the directory to the SD card .csv file, and column being the number of the sensor to read from. For example:
+
+	python make_calibration.py 4-9-2024_14-15-59.csv 5
+	
+After running, a file called calibration.csv will be made. This is the file that is used to convert our moisture to the commercial sensor moisture.
+
+IMPORTANT NOTE!
+Even after trying to correct the time on both computers, the times may be off for each recording. For example, the recording.csv and the SD card .csv may have an entry made at the same time, but the timestamp may be hours off.
+By default, make_calibration.py has a variable called timeOffset, and it is set by default to 18032 seconds. If the time offset is fixed, you can set this to zero in the script.
+
+### Testing
+
+Once the calibration.csv is generated, you can run show_graph.py to display a graph of the calibration:
+
+![Calibration Graph](ReadmeImages/calibration_graph.png)
+
+While this calibration isn't the best, you can see how our sensor and the commercial sensor are inversely proportional.
